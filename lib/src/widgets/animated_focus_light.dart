@@ -92,6 +92,10 @@ class AnimatedFocusLightState extends State<AnimatedFocusLight>
     _controller.addStatusListener(_listener);
     _controllerPulse.addStatusListener(_listenerPulse);
 
+    if (_targetFocus.listenToReposition) {
+      _controllerPulse.addListener(_repositionListener);
+    }
+
     WidgetsBinding.instance?.addPostFrameCallback((_) => _runFocus());
     super.initState();
   }
@@ -187,6 +191,9 @@ class AnimatedFocusLightState extends State<AnimatedFocusLight>
 
   void _runFocus() {
     if (_currentFocus < 0) return;
+    if (_targetFocus.listenToReposition) {
+      _controllerPulse.removeListener(_repositionListener);
+    }
     _targetFocus = widget.targets[_currentFocus];
 
     _controller.duration = _targetFocus.focusAnimationDuration ??
@@ -206,20 +213,11 @@ class AnimatedFocusLightState extends State<AnimatedFocusLight>
 
     setState(() {
       _finishFocus = false;
-      this._targetPosition = targetPosition;
-
-      _positioned = Offset(
-        targetPosition.offset.dx + (targetPosition.size.width / 2),
-        targetPosition.offset.dy + (targetPosition.size.height / 2),
-      );
-
-      if (targetPosition.size.height > targetPosition.size.width) {
-        _sizeCircle = targetPosition.size.height * 0.6 + _getPaddingFocus();
-      } else {
-        _sizeCircle = targetPosition.size.width * 0.6 + _getPaddingFocus();
-      }
+      _positionTarget(targetPosition);
     });
-
+    if (_targetFocus.listenToReposition) {
+      _controllerPulse.addListener(_repositionListener);
+    }
     _controller.forward();
   }
 
@@ -320,5 +318,32 @@ class AnimatedFocusLightState extends State<AnimatedFocusLight>
         curve: Curves.ease,
       ),
     );
+  }
+
+  void _positionTarget(TargetPosition position) {
+    _targetPosition = position;
+    _positioned = Offset(
+      position.offset.dx + (position.size.width / 2),
+      position.offset.dy + (position.size.height / 2),
+    );
+    if (position.size.height > position.size.width) {
+      _sizeCircle = position.size.height * 0.6 + _getPaddingFocus();
+    } else {
+      _sizeCircle = position.size.width * 0.6 + _getPaddingFocus();
+    }
+  }
+
+  void _repositionListener() {
+    final currentPosition = getTargetCurrent(_targetFocus);
+    if (_shouldReposition(currentPosition)) {
+      setState(() => _positionTarget(currentPosition!));
+    }
+  }
+
+  bool _shouldReposition(TargetPosition? currentPosition) {
+    return currentPosition != null &&
+        _targetPosition != null &&
+        (currentPosition.center.dx != _targetPosition!.center.dx ||
+            currentPosition.center.dy != _targetPosition!.center.dy);
   }
 }
