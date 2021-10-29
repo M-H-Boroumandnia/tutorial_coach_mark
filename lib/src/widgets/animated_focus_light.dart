@@ -92,9 +92,7 @@ class AnimatedFocusLightState extends State<AnimatedFocusLight>
     _controller.addStatusListener(_listener);
     _controllerPulse.addStatusListener(_listenerPulse);
 
-    if (_targetFocus.listenToReposition) {
-      _controllerPulse.addListener(_repositionListener);
-    }
+    _controllerPulse.addListener(_repositionListener);
 
     WidgetsBinding.instance?.addPostFrameCallback((_) => _runFocus());
     super.initState();
@@ -191,9 +189,6 @@ class AnimatedFocusLightState extends State<AnimatedFocusLight>
 
   void _runFocus() {
     if (_currentFocus < 0) return;
-    if (_targetFocus.listenToReposition) {
-      _controllerPulse.removeListener(_repositionListener);
-    }
     _targetFocus = widget.targets[_currentFocus];
 
     _controller.duration = _targetFocus.focusAnimationDuration ??
@@ -215,9 +210,6 @@ class AnimatedFocusLightState extends State<AnimatedFocusLight>
       _finishFocus = false;
       _positionTarget(targetPosition);
     });
-    if (_targetFocus.listenToReposition) {
-      _controllerPulse.addListener(_repositionListener);
-    }
     _controller.forward();
   }
 
