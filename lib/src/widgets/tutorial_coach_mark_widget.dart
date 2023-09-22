@@ -238,7 +238,7 @@ class TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget>
                   ),
                 ),
               ),
-              SizedBox(width: 100,),
+              SizedBox(width: 80,),
               InkWell(
                 onTap: skip,
                 child: Padding(
