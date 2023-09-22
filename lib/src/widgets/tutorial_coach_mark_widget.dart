@@ -223,7 +223,7 @@ class TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget>
           opacity: showContent ? 1 : 0,
           duration: Duration(milliseconds: 300),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               InkWell(
                 onTap: skipAll,
@@ -238,6 +238,7 @@ class TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget>
                   ),
                 ),
               ),
+              SizedBox(width: 100,),
               InkWell(
                 onTap: skip,
                 child: Padding(
